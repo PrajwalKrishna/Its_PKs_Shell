@@ -1,4 +1,4 @@
-#include "commandParser.h"
+#include "lineParser.h"
 
 char ** input()
 {

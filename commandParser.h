@@ -1,16 +1,30 @@
-char ** tokanize(char * ptr)
+char * parseCommand(char * cmd)
 {
-    int MAX_CMD = 16;
-    char *tok;
-    char *str = strdup(ptr);
-    char **cmd = malloc(MAX_CMD * sizeof(char *));
-    char *sep = ";\n";
-    int count = 0;
-    cmd[count++] = strtok(str,sep);
-    while(cmd[count-1])
-    {
-        cmd[count++] = strtok(NULL,sep);
-    }
-    cmd[count++] = NULL;
-    return cmd;
+    int length = strlen(cmd);
+    int i,count=0;
+    //Remove trailing spaces or characters
+    for(i=0;i<length;i++)
+        if(!(cmd[i]==' ' || cmd[i]=='\t'))
+            break;
+    count+=i;
+    length -= count;
+    for(i=0;i<=length;i++)
+        cmd[i] = cmd[i+count];
+    //Remove multiple spaces(even if within "")
+    char *parsed = strdup(cmd);
+    int j=0;
+    count=0;
+    for(i=0;i<=length;i++)
+        if(cmd[i]==' '|| cmd[i]=='\t')
+            count++;
+        else
+        {
+            if(count)
+            {
+                parsed[j++]=' ';
+                count=0;
+            }
+            parsed[j++]=cmd[i];
+        }
+    return parsed;
 }

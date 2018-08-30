@@ -9,7 +9,9 @@
 int main(int argc,char * argv[])
 {
     int flag = 1;
+    //intitalize
+    const char *home = getenv("PWD");
     while(flag)
-        display();
-    return 0;
+        display(home);
+    return 0; 
 }
