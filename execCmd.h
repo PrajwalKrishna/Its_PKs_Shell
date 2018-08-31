@@ -1,4 +1,6 @@
-const char *SUPPORTED_CMD[]={"pwd","cd","echo","ls","exit","quit"};
+#include "argumentize.h"
+
+const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls"};
 
 int findCmdNo(char *cmd)
 {
@@ -19,19 +21,57 @@ int findCmdNo(char *cmd)
             return i;
      return -1;
 }
+int exec_pk_ls(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    if(argc==1)
+    {
 
+    }
+    else if(argc==2)
+    {
+        /*if(argv[1][0]=='-')
+            if(!strcmp(argv[1],"-l"))
+            else if(!strcmp(argv[1],"-a"))
+            else if(!strcmp(argv[1],"-al"))*/
+    }
+}
 int exec_pk_pwd()
 {
-    char *path = getenv("PWD");
+    char *path = (char *)malloc(1000);
+    getcwd(path,1000);
     printf("%s\n",path);
+    free(path);
     return 0;
 }
 int exec_pk_cd(char *cmd)
 {
-
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    if(argc==1 || !strcmp(argv[1],"~"))
+    {
+        int check = chdir(getenv("PWD"));
+        if(check<0)
+            perror("Its_PKS_Shell");
+    }
+    else
+    {
+        int check = chdir(argv[1]);
+        if(check<0)
+            perror("Its_PKS_Shell");
+    }
     return 0;
 }
-
+int exec_pk_echo(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    for(int i=1;i<argc;i++)
+        printf("%s ",argv[i]);
+    printf("\n");
+    return 0;
+}
 int execCmd(char *cmd)
 {
     int status =0;
@@ -41,7 +81,6 @@ int execCmd(char *cmd)
         printf("error\n");
         return 0;
     }
-    printf("Command number = %s\n",SUPPORTED_CMD[commandNumber]);
     switch (commandNumber)
     {
         case 0:
@@ -52,15 +91,16 @@ int execCmd(char *cmd)
             //cd command
             status = exec_pk_cd(cmd);
             break;
-        /*case 2:
-            //pwd command
-            status = exec_pk_pwd(cmd);
+        case 2:
+            //echo command
+            status = exec_pk_echo(cmd);
             break;
         case 3:
-            //pwd command
-            status = exec_pk_pwd(cmd);
-            break;
-         */
+            //exit command
+            _exit(0);
+        case 4:
+            //ls command
+            status = exec_pk_ls(cmd);
     }
     return status;
 }
