@@ -2,6 +2,8 @@
 
 const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls"};
 
+#include "builtin_pk_ls.h"
+
 int findCmdNo(char *cmd)
 {
     int i,n;
@@ -21,21 +23,24 @@ int findCmdNo(char *cmd)
             return i;
      return -1;
 }
+
 int exec_pk_ls(char *cmd)
 {
     char **argv = argumentize(cmd);
     int argc = argCount(argv);
     if(argc==1)
-    {
-
-    }
+        return cmd_pk_ls_l(".");
     else if(argc==2)
     {
-        /*if(argv[1][0]=='-')
-            if(!strcmp(argv[1],"-l"))
-            else if(!strcmp(argv[1],"-a"))
-            else if(!strcmp(argv[1],"-al"))*/
+        printf("Telgu %s\n",cmd);
+        int check = 0;
+        extern int optind, opterr, optopt;
+        extern char *optarg;
+        check = getopt(argc,argv,"al");
+        optind = 0;
+        printf("check = %d %d\n",check,optind);
     }
+    return 0;
 }
 int exec_pk_pwd()
 {
@@ -78,7 +83,7 @@ int execCmd(char *cmd)
     int commandNumber = findCmdNo(cmd);
     if(commandNumber==-1)
     {
-        printf("error\n");
+        printf("Its_PKS_Shell:Command Not Supported\n");
         return 0;
     }
     switch (commandNumber)
