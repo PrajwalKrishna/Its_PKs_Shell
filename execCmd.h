@@ -120,7 +120,8 @@ int launch_cmd(char *cmd)
     if(pid<0)
     {
         //fork error
-        perror("It's PK's Shell:");
+        perror("It's PK's Shell");
+        _exit(1);
     }
     else if(!pid)
     {
@@ -128,15 +129,16 @@ int launch_cmd(char *cmd)
         int check = execvp(argv[0],argv);
         if(check<0)
         {
-            perror("It's PK's Shell:");
+            perror("It's PK's Shell");
+            //If not killed multiple copies of shell would open
+            _exit(1);
         }
     }
     else
     {
         //parent Process
         int status;
-        do
-        {
+        do{
             wpid = waitpid(pid,&status,WUNTRACED);
         } while(!WIFEXITED(status) && !WIFSIGNALED(status));
     }
