@@ -13,7 +13,10 @@ int cmd_pk_ls(char *path)
     DIR *dir;
     dir = opendir(path);
     if(dir==NULL)
-        perror("ITskfjslkdf:");
+    {
+         perror("Its_PKs_Shell ");
+         return -1;
+    }
     struct dirent *directoryPtr;
     directoryPtr = readdir(dir);
     while(directoryPtr!=NULL)
@@ -30,7 +33,10 @@ int cmd_pk_ls_a(char *path)
     DIR *dir;
     dir = opendir(path);
     if(dir==NULL)
-        perror("ITskfjslkdf:");
+    {
+        perror("Its_PKs_Shell:");
+        return -1;
+    }
     struct dirent *directoryPtr;
     directoryPtr = readdir(dir);
     while(directoryPtr!=NULL)
@@ -104,12 +110,35 @@ int cmd_pk_ls_l(char *path)
     DIR *dir;
     dir = opendir(path);
     if(dir==NULL)
-        perror("ITskfjslkdf:");
+    {
+        perror("Its_PKs_Shell");
+        return -1;
+    }
     struct dirent *directoryPtr;
     directoryPtr = readdir(dir);
     while(directoryPtr!=NULL)
     {
-        print_pk_ls_l(directoryPtr->d_name,directoryPtr->d_name);
+        if(directoryPtr->d_name[0]!='.')
+            print_pk_ls_l(path,directoryPtr->d_name);
+        directoryPtr = readdir(dir);
+    }
+    closedir(dir);
+    return 0;
+}
+int cmd_pk_ls_l_a(char *path)
+{
+    DIR *dir;
+    dir = opendir(path);
+    if(dir==NULL)
+    {
+        perror("Its_PKs_Shell:");
+        return -1;
+    }
+    struct dirent *directoryPtr;
+    directoryPtr = readdir(dir);
+    while(directoryPtr!=NULL)
+    {
+        print_pk_ls_l(path,directoryPtr->d_name);
         directoryPtr = readdir(dir);
     }
     closedir(dir);

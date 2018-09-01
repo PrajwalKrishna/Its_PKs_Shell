@@ -28,17 +28,50 @@ int exec_pk_ls(char *cmd)
 {
     char **argv = argumentize(cmd);
     int argc = argCount(argv);
+    int aflag=0;
+    int lflag=0;
+    int numberOfParameter = 1;
     if(argc==1)
-        return cmd_pk_ls_l(".");
-    else if(argc==2)
+        return cmd_pk_ls(".");
+    else if(argc==2 && argv[1][0]!='-')
+        return cmd_pk_ls(argv[1]);
+    if(argc>=2 && argv[1][0]=='-')
     {
-        printf("Telgu %s\n",cmd);
-        int check = 0;
-        extern int optind, opterr, optopt;
-        extern char *optarg;
-        check = getopt(argc,argv,"al");
-        optind = 0;
-        printf("check = %d %d\n",check,optind);
+        numberOfParameter++;
+        if(!strcmp("-a",argv[1]))
+            aflag=1;
+        else if(!strcmp("-l",argv[1]))
+            lflag=1;
+        else if(!strcmp("-la",argv[1])||!(strcmp("-al",argv[1])))
+            aflag=lflag=1;
+        else
+            fprintf(stderr,"%s\n","Its_PKS_Shell:Wrong flag used with ls");
+    }
+    if(argc>=3 && argv[2][0]=='-')
+    {
+        numberOfParameter++;
+        if(!(strcmp("-a",argv[2])))
+            aflag=1;
+        else if(!(strcmp("-l",argv[2])))
+            lflag=1;
+        else if(!strcmp("-la",argv[2])||!(strcmp("-al",argv[2])))
+            aflag=lflag=1;
+        else
+            fprintf(stderr,"%s\n","Its_PKS_Shell:Wrong flag used with ls");
+    }
+    int i;
+    if(numberOfParameter==argc)
+        argv[argc++] = ".";
+    for(i=numberOfParameter;i<argc;i++)
+    {
+        if(aflag && lflag)
+            return cmd_pk_ls_l_a(argv[i]);
+        else if(aflag)
+            return cmd_pk_ls_a(argv[i]);
+        else if(lflag)
+            return cmd_pk_ls_l(argv[i]);
+        else
+            return cmd_pk_ls(argv[i]);
     }
     return 0;
 }
@@ -77,14 +110,45 @@ int exec_pk_echo(char *cmd)
     printf("\n");
     return 0;
 }
+
+int launch_cmd(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    pid_t pid,wpid;
+    pid = fork();
+    if(pid<0)
+    {
+        //fork error
+        perror("It's PK's Shell:");
+    }
+    else if(!pid)
+    {
+        //child process should call execvp
+        int check = execvp(argv[0],argv);
+        if(check<0)
+        {
+            perror("It's PK's Shell:");
+        }
+    }
+    else
+    {
+        //parent Process
+        int status;
+        do
+        {
+            wpid = waitpid(pid,&status,WUNTRACED);
+        } while(!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+    return 0;
+}
 int execCmd(char *cmd)
 {
     int status =0;
     int commandNumber = findCmdNo(cmd);
     if(commandNumber==-1)
     {
-        printf("Its_PKS_Shell:Command Not Supported\n");
-        return 0;
+        status = launch_cmd(cmd);
     }
     switch (commandNumber)
     {
@@ -106,6 +170,7 @@ int execCmd(char *cmd)
         case 4:
             //ls command
             status = exec_pk_ls(cmd);
+            break;
     }
     return status;
 }
