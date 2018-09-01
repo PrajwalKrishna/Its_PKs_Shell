@@ -3,7 +3,11 @@
 #include<pwd.h>
 #include<grp.h>
 #include<time.h>
-
+char * formatDate(char *str,time_t val)
+{
+    strftime(str,36,"%d.%m.%Y %H:%M:%S",localtime(&val));
+    return str;
+}
 int cmd_pk_ls(char *path)
 {
     DIR *dir;
@@ -90,15 +94,9 @@ int print_pk_ls_l(char *path,char *fileName)
     printf("%s\t %d\t ",permission,file_buff.st_nlink);
     printf("%s\t %s\t ",getpwuid(file_buff.st_uid)->pw_name,getgrgid(file_buff.st_gid)->gr_name);
     printf("%lld\t ",file_buff.st_size);
-
-    /*   struct timespec ts=file_buff.st_mtime;
-       timespec_get(&ts, 0);
-       char buff[100];
-       strftime(buff, sizeof buff, "%D %T", gmtime(&ts.tv_sec));
-       printf("Current time: %s.%09ld UTC\n", buff, ts.tv_nsec);
-*/
-
-    printf("%s\n",fileName);
+    char date[1024];
+    formatDate(date,file_buff.st_mtime);
+    printf(" %s\t %s\n",date,fileName);
     return 0;
 }
 int cmd_pk_ls_l(char *path)
