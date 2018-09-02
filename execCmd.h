@@ -59,9 +59,18 @@ int exec_pk_ls(char *cmd)
         else
             fprintf(stderr,"%s\n","Its_PKS_Shell:Wrong flag used with ls");
     }
-    int i;
     if(numberOfParameter==argc)
-        argv[argc++] = ".";
+    {
+        if(aflag && lflag)
+            return cmd_pk_ls_l_a(".");
+        else if(aflag)
+            return cmd_pk_ls_a(".");
+        else if(lflag)
+            return cmd_pk_ls_l(".");
+        else
+            return cmd_pk_ls(".");
+    }
+    int i;
     for(i=numberOfParameter;i<argc;i++)
     {
         if(aflag && lflag)
@@ -110,7 +119,6 @@ int exec_pk_echo(char *cmd)
     printf("\n");
     return 0;
 }
-
 int launch_cmd(char *cmd)
 {
     char **argv = argumentize(cmd);

@@ -50,7 +50,16 @@ int cmd_pk_ls_a(char *path)
 int print_pk_ls_l(char *path,char *fileName)
 {
     struct stat file_buff;
-    int check = stat(path,&file_buff);
+    char *filePath = (char *)malloc(sizeof(path)+sizeof(fileName)+4);
+    strcpy(filePath,path);
+    strcat(filePath,"/");
+    strcat(filePath,fileName);
+    int check = stat(filePath,&file_buff);
+    if(check<0)
+    {
+        perror("Its_PKs_Shell");
+        return -1;
+    }
     char permission[11];
     //Accessing whether file or directory
     if(S_ISDIR(file_buff.st_mode))
