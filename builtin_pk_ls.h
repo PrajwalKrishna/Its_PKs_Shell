@@ -61,6 +61,7 @@ int print_pk_ls_l(char *path,char *fileName)
         return -1;
     }
     char permission[11];
+    permission[10]='\0';
     //Accessing whether file or directory
     if(S_ISDIR(file_buff.st_mode))
         permission[0]='d';
@@ -112,6 +113,7 @@ int print_pk_ls_l(char *path,char *fileName)
     char date[1024];
     formatDate(date,file_buff.st_mtime);
     printf(" %s\t %s\n",date,fileName);
+    free(filePath);
     return 0;
 }
 int cmd_pk_ls_l(char *path)

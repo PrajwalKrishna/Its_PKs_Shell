@@ -20,7 +20,11 @@ int findCmdNo(char *cmd)
     int totalCommand = sizeof(SUPPORTED_CMD)/sizeof(char*);
     for(i=0;i<totalCommand;i++)
         if(!strcmp(command,SUPPORTED_CMD[i]))
+        {
+            free(command);
             return i;
+        }
+     free(command);
      return -1;
 }
 
@@ -144,7 +148,7 @@ int launch_cmd(char *cmd)
     }
     else
     {
-        //parent Process
+        //parent Process for forground Process
         int status;
         do{
             wpid = waitpid(pid,&status,WUNTRACED);
