@@ -1,8 +1,10 @@
 #include "argumentize.h"
 
-const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls"};
+const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock"};
 
 #include "builtin_pk_ls.h"
+#include "pinfo.h"
+#include "exec_clock.h"
 
 int findCmdNo(char *cmd)
 {
@@ -123,6 +125,33 @@ int exec_pk_echo(char *cmd)
     printf("\n");
     return 0;
 }
+int exec_pk_pinfo(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    if(argc==1)
+        return exec_pinfo(0);
+    else
+        for(int i=1;i<argc;i++)
+            exec_pinfo(atoi(argv[i]));
+    return 0;
+}
+int exec_pk_clock(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    if(argc!=3)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as clock -t <interval>");
+        return -1;
+    }
+    else if(strcmp(argv[1],"-t"))
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as clock -t <interval>");
+        return -1;
+    }
+    return exec_clock(atoi(argv[2]));
+}
 int launch_cmd(char *cmd)
 {
     char **argv = argumentize(cmd);
@@ -181,9 +210,18 @@ int execCmd(char *cmd)
         case 3:
             //exit command
             _exit(0);
+            break;
         case 4:
             //ls command
             status = exec_pk_ls(cmd);
+            break;
+        case 5:
+            //pinfo
+            status = exec_pk_pinfo(cmd);
+            break;
+        case 6:
+            //self implemented clock
+            status = exec_pk_clock(cmd);
             break;
     }
     return status;

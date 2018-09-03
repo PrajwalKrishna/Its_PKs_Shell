@@ -28,14 +28,14 @@ int exec_clock(int interval)
 			{
 				printf("Its_PKs_Shell:Unable to open date\n");
 				perror("Its_PKs_Shell");
-				return -1;
+                _exit(1);
 			}
 			FILE *time = fopen(timePath,"r");
 			if(!time)
 			{
 				printf("Its_PKs_Shell:Unable to open date\n");
 				perror("Its_PKs_Shell");
-				return -1;
+				_exit(1);
 			}
 			fscanf(date,"%s",curr_date);
 			fscanf(time,"%s",curr_time);
