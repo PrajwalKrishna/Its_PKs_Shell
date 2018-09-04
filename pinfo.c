@@ -1,7 +1,4 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<string.h>
+#include "custom_header.h"
 int exec_pinfo(int pid)
 {
 	char *filePath = (char *)malloc(1024);

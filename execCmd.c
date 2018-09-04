@@ -1,10 +1,6 @@
-#include "argumentize.h"
+#include "custom_header.h"
 
 const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock"};
-
-#include "builtin_pk_ls.h"
-#include "pinfo.h"
-#include "exec_clock.h"
 
 struct procInfo
 {

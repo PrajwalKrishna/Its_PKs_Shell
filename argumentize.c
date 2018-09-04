@@ -1,3 +1,4 @@
+#include "custom_header.h"
 char ** argumentize(char * cmd)
 {
     int MAX_CMD = 16;

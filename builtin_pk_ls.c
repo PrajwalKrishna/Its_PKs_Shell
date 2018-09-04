@@ -1,8 +1,4 @@
-#include<dirent.h>
-#include<sys/stat.h>
-#include<pwd.h>
-#include<grp.h>
-#include<time.h>
+#include "custom_header.h"
 char * formatDate(char *str,time_t val)
 {
     strftime(str,36,"%d.%m.%Y %H:%M:%S",localtime(&val));

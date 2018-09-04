@@ -1,7 +1,4 @@
-#include "input.h"
-#include "commandParser.h"
-#include "execCmd.h"
-
+#include "custom_header.h"
 char * dirName()
 {
     char *path = (char *)malloc(1000);

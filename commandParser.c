@@ -1,3 +1,4 @@
+#include "custom_header.h"
 char * parseCommand(char * cmd)
 {
     int length = strlen(cmd);

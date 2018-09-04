@@ -1,5 +1,4 @@
-#include "lineParser.h"
-
+#include "custom_header.h"
 char ** input()
 {
     char buffer[1024];
