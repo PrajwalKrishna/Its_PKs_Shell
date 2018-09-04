@@ -50,7 +50,8 @@ int cmd_pk_ls_a(char *path)
 int print_pk_ls_l(char *path,char *fileName)
 {
     struct stat file_buff;
-    char *filePath = (char *)malloc(sizeof(path)+sizeof(fileName)+4);
+    //char *filePath = (char *)malloc(sizeof(path)+sizeof(fileName)+4);
+    char filePath[4096];
     strcpy(filePath,path);
     strcat(filePath,"/");
     strcat(filePath,fileName);
@@ -113,7 +114,7 @@ int print_pk_ls_l(char *path,char *fileName)
     char date[1024];
     formatDate(date,file_buff.st_mtime);
     printf(" %s\t %s\n",date,fileName);
-    free(filePath);
+    //free(filePath);
     return 0;
 }
 int cmd_pk_ls_l(char *path)

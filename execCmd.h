@@ -6,6 +6,14 @@ const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock"};
 #include "pinfo.h"
 #include "exec_clock.h"
 
+struct procInfo
+{
+  int  pid;
+  char cmd[1024];
+};
+struct procInfo backgroundProcess[1024];
+int processPointer=0;
+
 int findCmdNo(char *cmd)
 {
     int i,n;
@@ -157,6 +165,10 @@ int launch_cmd(char *cmd)
     char **argv = argumentize(cmd);
     int argc = argCount(argv);
     pid_t pid,wpid;
+    //background is defined when last argument is &
+    int background = 0;
+    if(!strcmp(argv[argc-1],"&"))
+        background = 1;
     pid = fork();
     if(pid<0)
     {
@@ -167,6 +179,8 @@ int launch_cmd(char *cmd)
     else if(!pid)
     {
         //child process should call execvp
+        if(background)
+            argv[argc - 1] = NULL;
         int check = execvp(argv[0],argv);
         if(check<0)
         {
@@ -175,13 +189,30 @@ int launch_cmd(char *cmd)
             _exit(1);
         }
     }
-    else
+    else if(!background)
     {
         //parent Process for forground Process
         int status;
         do{
             wpid = waitpid(pid,&status,WUNTRACED);
+            if(wpid<0)
+            {
+                perror("It's PK's Shell");
+            }
         } while(!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+    else
+    {
+        //parent process for background Process
+        backgroundProcess[processPointer].pid = pid;
+        strcpy(backgroundProcess[processPointer].cmd,argv[0]);
+        processPointer++;
+        int status;
+        wpid = waitpid(pid,&status,WNOHANG);
+        if(wpid<0)
+        {
+            perror("It's PK's Shell");
+        }
     }
     return 0;
 }
