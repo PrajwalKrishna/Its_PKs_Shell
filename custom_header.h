@@ -53,3 +53,6 @@ char ** tokanize(char * ptr);
 
 //functions in pinfo.c
 int exec_pinfo(int pid);
+
+//functions in exec_reminder.c
+int exec_reminder(char *cmd);

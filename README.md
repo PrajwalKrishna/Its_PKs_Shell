@@ -18,7 +18,7 @@ This **README** file contains :
 ----------
 
 
-## About The Game
+## About The Shell
 An interactive user defined bash-like shell which supports semi-colon separated list of commands.It can take commands in input check if a builtin exists if exists then run the builtin else run it as separate process.
 
 ----------
@@ -40,6 +40,7 @@ echo| Print on terminal |-| 0 or more
 exit|Exit terminal|-|-
 pinfo|Display process Info of given process id|-|0 or 1
 clock|Starts foreground clock|-t,-n|1 or 2
+remindme|Gives a reminder after time given|-|2
 
 ## Features
 * Supports semi-colon separated commands
@@ -60,6 +61,7 @@ clock|Starts foreground clock|-t,-n|1 or 2
  * [lineParser.c](./lineParser.c) - Parse a line taken from user and seperate commands
  * [pinfo.c](./pinfo.c) - Functions to implement process information
  * [main.c](./main.c) - Master starts the process of shell
+ * [exec_reminder.c](./exec_reminder.c) - Implementation of remindme
  * [custom_header.h](./custom_header.h) - Has functions declaration and prototypes
  * [makefile](./makefile) - Makes all files
  * [LICENSE](./LICENSE) - MIT License

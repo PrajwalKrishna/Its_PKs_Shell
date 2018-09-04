@@ -1,6 +1,6 @@
 #include "custom_header.h"
 
-const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock"};
+const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock","remindme"};
 
 struct procInfo
 {
@@ -146,6 +146,17 @@ int exec_pk_pinfo(char *cmd)
             exec_pinfo(atoi(argv[i]));
     return 0;
 }
+int exec_pk_remindme(char * cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    if(argc<3)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as remindme <interval> <msg>");
+        return -1;
+    }
+    return exec_reminder(cmd);
+}
 int exec_pk_clock(char *cmd)
 {
     char **argv = argumentize(cmd);
@@ -226,11 +237,15 @@ int checkBackgroud()
     int wpid,status;
     do{
         wpid = waitpid(-1,&status,WNOHANG);
-        for(int i=0;i<processPointer;i++)
-        {
-            if(backgroundProcess[i].pid == wpid)
-                printf("Its_PKs_Shell: %s with pid %d exited with status %d\n",backgroundProcess[i].cmd,wpid,status);
-        }
+        if(wpid>0)
+            for(int i=0;i<processPointer;i++)
+            {
+                if(backgroundProcess[i].pid == wpid)
+                {
+                    printf("Its_PKs_Shell: %s with pid %d exited with status %d\n",backgroundProcess[i].cmd,wpid,status);
+                    backgroundProcess[i].pid = 0;
+                }
+            }
     }while(wpid>0);
     return 0;
 }
@@ -271,6 +286,10 @@ int execCmd(char *cmd)
         case 6:
             //self implemented clock
             status = exec_pk_clock(cmd);
+            break;
+        case 7:
+            //self implemented reminder
+            status = exec_pk_remindme(cmd);
             break;
     }
     return status;
