@@ -47,6 +47,7 @@ int exec_clock(int interval,int times)
 			//sleep
 			sleep(interval);
 		}
+        _exit(0);
 	}
 	else
 	{
