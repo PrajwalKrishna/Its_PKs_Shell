@@ -11,9 +11,8 @@ _______________
 This **README** file contains :
  1. Information About the Shell
  2. How to run
- 3. List of builtins
- 4. Features
- 5. File structure
+ 3.
+ 4. File structure
 
 ----------
 
@@ -60,7 +59,7 @@ clock|Starts foreground clock|-t|1
  * [hurdles.py](./hurdles.py)
  * [obstacles.py](./obstacles.py)
  * [background.py](./background.py)
- * [LISENCEs](./requirements.txt)
+ * [LISENCE](./requirements.txt)
  * [README.md](./README.md)
 
 

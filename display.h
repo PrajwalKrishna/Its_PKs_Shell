@@ -27,6 +27,7 @@ void display()
     uname(&userInfo);
     const char *sys_name = userInfo.sysname;
     const char *user_name = getenv("USER");
+    checkBackgroud();
     printf("%s@%s:",user_name,sys_name);
     printf("%s",dirName());
     printf("%c",'>');

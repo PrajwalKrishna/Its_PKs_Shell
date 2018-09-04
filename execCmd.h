@@ -59,7 +59,10 @@ int exec_pk_ls(char *cmd)
         else if(!strcmp("-la",argv[1])||!(strcmp("-al",argv[1])))
             aflag=lflag=1;
         else
-            fprintf(stderr,"%s\n","Its_PKS_Shell:Wrong flag used with ls");
+         {
+             fprintf(stderr,"%s\n","Its_PKS_Shell:Wrong flag used with ls");
+             return -1;
+         }
     }
     if(argc>=3 && argv[2][0]=='-')
     {
@@ -71,7 +74,10 @@ int exec_pk_ls(char *cmd)
         else if(!strcmp("-la",argv[2])||!(strcmp("-al",argv[2])))
             aflag=lflag=1;
         else
+        {
             fprintf(stderr,"%s\n","Its_PKS_Shell:Wrong flag used with ls");
+            return -1;
+        }
     }
     if(numberOfParameter==argc)
     {
@@ -148,9 +154,9 @@ int exec_pk_clock(char *cmd)
 {
     char **argv = argumentize(cmd);
     int argc = argCount(argv);
-    if(argc!=3)
+    if(argc!=3 && argc!=5)
     {
-        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as clock -t <interval>");
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as clock -t <interval> or clock -t <interval> -n <times>");
         return -1;
     }
     else if(strcmp(argv[1],"-t"))
@@ -158,7 +164,15 @@ int exec_pk_clock(char *cmd)
         fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as clock -t <interval>");
         return -1;
     }
-    return exec_clock(atoi(argv[2]));
+    else if(argc==3)
+        return exec_clock(atoi(argv[2]),1000);
+    else if(strcmp(argv[3],"-n"))
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as clock -t <interval>");
+        return -1;
+    }
+    else
+        return exec_clock(atoi(argv[2]),atoi(argv[4]));
 }
 int launch_cmd(char *cmd)
 {
@@ -207,13 +221,21 @@ int launch_cmd(char *cmd)
         backgroundProcess[processPointer].pid = pid;
         strcpy(backgroundProcess[processPointer].cmd,argv[0]);
         processPointer++;
-        int status;
-        wpid = waitpid(pid,&status,WNOHANG);
-        if(wpid<0)
-        {
-            perror("It's PK's Shell");
-        }
+        printf("%s [%d]\n",argv[0],pid);
     }
+    return 0;
+}
+int checkBackgroud()
+{
+    int wpid,status;
+    do{
+        wpid = waitpid(-1,&status,WNOHANG);
+        for(int i=0;i<processPointer;i++)
+        {
+            if(backgroundProcess[i].pid == wpid)
+                printf("Its_PKs_Shell: %s with pid %d exited with status %d\n",backgroundProcess[i].cmd,wpid,status);
+        }
+    }while(wpid>0);
     return 0;
 }
 int execCmd(char *cmd)
