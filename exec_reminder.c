@@ -27,8 +27,7 @@ int exec_reminder(char *cmd)
         for(int i=2;i<argc;i++)
             printf("%s ",argv[i]);
         printf("\n");
-        //_exit(1);
+        _exit(1);
     }
-
     return 0;
 }
