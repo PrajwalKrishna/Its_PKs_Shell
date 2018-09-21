@@ -10,6 +10,7 @@
 #include<errno.h>
 #include<stdio.h>
 #include<sys/utsname.h>
+#include<fcntl.h>
 
 //Functions in argumentize.c
 char ** argumentize(char * cmd);
@@ -56,3 +57,16 @@ int exec_pinfo(int pid);
 
 //functions in exec_reminder.c
 int exec_reminder(char *cmd);
+
+
+
+
+
+
+
+
+
+//functions in redirect.c
+char* checkInputRedirection(char *cmd);
+char* checkOutputRedirection(char *cmd);
+char* checkAppendRedirection(char *cmd);

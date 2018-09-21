@@ -251,7 +251,65 @@ int checkBackgroud()
 }
 int execCmd(char *cmd)
 {
-    int status =0;
+
+//Debugger
+int original_stdout = dup(1);
+int original_stdin = dup(0);
+
+char *str = checkInputRedirection(cmd);
+if(str)
+{
+    //printf("Input redirect %s\n",str);
+    int fd;
+    // open the file to replace stdout
+    fd = open(str, O_RDONLY);
+
+    if(fd == -1) {
+      perror("Failed to open file");
+    }
+    close(0);
+    // use dup2() to duplicate the fd
+    if(dup2(fd, 0) != 0)  // 1 refers to stdout
+      perror("dup2 fail");
+    // close the original fd
+    close(fd);
+
+}
+str = checkOutputRedirection(cmd);
+if(str)
+{
+    int fd;
+    // open the file to replace stdout
+    fd = open(str, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    if(fd == -1) {
+      perror("Failed to open file");
+    }
+    close(1);
+    // use dup2() to duplicate the fd
+    if(dup2(fd, 1) != 1)  // 1 refers to stdout
+      perror("dup2 fail");
+    // close the original fd
+    close(fd);
+}
+str = checkAppendRedirection(cmd);
+if(str)
+{
+    int fd;
+    // open the file to replace stdout
+    fd = open(str, O_WRONLY | O_CREAT | O_APPEND, 0644);
+
+    if(fd == -1) {
+      perror("Failed to open file");
+    }
+    close(1);
+    // use dup2() to duplicate the fd
+    if(dup2(fd, 1) != 1)  // 1 refers to stdout
+      perror("dup2 fail");
+    // close the original fd
+    close(fd);
+}
+    int status = 0;
     int commandNumber = findCmdNo(cmd);
     if(commandNumber==-1)
     {
@@ -292,5 +350,7 @@ int execCmd(char *cmd)
             status = exec_pk_remindme(cmd);
             break;
     }
+    dup2(original_stdout,1);
+    dup2(original_stdin,0);
     return status;
 }
