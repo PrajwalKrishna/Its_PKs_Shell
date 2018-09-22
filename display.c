@@ -33,6 +33,7 @@ void display()
     for(int i=0;cmd[i]!=NULL;i++)
     {
         cmd[i]=parseCommand(cmd[i]);
-        execCmd(cmd[i]);
+        //execCmd(cmd[i]);
+        pipeExec(cmd[i]);
     }
 }

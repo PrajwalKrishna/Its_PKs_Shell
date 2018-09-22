@@ -392,7 +392,10 @@ int execCmd(char *cmd)
             status = exec_pk_unsetenv(cmd);
             break;
     }
+    //Restore the original I\O field
     dup2(original_stdout,1);
     dup2(original_stdin,0);
+    close(original_stdout);
+    close(original_stdin);
     return status;
 }

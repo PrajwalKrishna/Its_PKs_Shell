@@ -1,7 +1,7 @@
 #include "custom_header.h"
+const int MAX_CMD = 16;
 char ** argumentize(char * cmd)
 {
-    int MAX_CMD = 16;
     char *str = strdup(cmd);
     char **args = malloc(MAX_CMD * sizeof(char *));
     char *sep = " ";

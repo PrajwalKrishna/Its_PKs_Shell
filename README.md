@@ -62,6 +62,7 @@ remindme|Gives a reminder after time given|-|2
  * [pinfo.c](./pinfo.c) - Functions to implement process information
  * [main.c](./main.c) - Master starts the process of shell
  * [redirection.c](./redirection.c) - Has functions to implement I/O redirection
+ * [pipe.c](./pipe.c) - Has functions to implement piping of commands
  * [exec_reminder.c](./exec_reminder.c) - Implementation of remindme
  * [custom_header.h](./custom_header.h) - Has functions declaration and prototypes
  * [makefile](./makefile) - Makes all files
