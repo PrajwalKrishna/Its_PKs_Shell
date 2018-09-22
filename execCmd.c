@@ -1,6 +1,6 @@
 #include "custom_header.h"
 
-const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock","remindme"};
+const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock","remindme","setenv","unsetenv"};
 
 struct procInfo
 {
@@ -181,6 +181,42 @@ int exec_pk_clock(char *cmd)
     else
         return exec_clock(atoi(argv[2]),atoi(argv[4]));
 }
+int exec_pk_setenv(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    int check = 0;
+    if(argc!=2 && argc!=3)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as setenv <variable> or setenv <variable> <value>");
+        return -1;
+    }
+    else if(argc==3)
+        check = setenv(argv[1],argv[2],1);
+    else
+        check = setenv(argv[1],"",1);
+    if(check<0){
+        perror("Its_PKS_Shell::Setenv:");
+        return -1;
+    }
+    return 0;
+}
+int exec_pk_unsetenv(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    if(argc!=2)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as unsetenv <variable>");
+        return -1;
+    }
+    int check = unsetenv(argv[1]);
+    if(check<0){
+        perror("Its_PKS_Shell::Setenv:");
+        return -1;
+    }
+    return 0;
+}
 int launch_cmd(char *cmd)
 {
     char **argv = argumentize(cmd);
@@ -251,64 +287,62 @@ int checkBackgroud()
 }
 int execCmd(char *cmd)
 {
+    int original_stdout = dup(1);
+    int original_stdin = dup(0);
 
-//Debugger
-int original_stdout = dup(1);
-int original_stdin = dup(0);
+    char *str = checkInputRedirection(cmd);
+    if(str)
+    {
+        //printf("Input redirect %s\n",str);
+        int fd;
+        // open the file to replace stdout
+        fd = open(str, O_RDONLY);
 
-char *str = checkInputRedirection(cmd);
-if(str)
-{
-    //printf("Input redirect %s\n",str);
-    int fd;
-    // open the file to replace stdout
-    fd = open(str, O_RDONLY);
+        if(fd == -1) {
+          perror("Failed to open file");
+        }
+        close(0);
+        // use dup2() to duplicate the fd
+        if(dup2(fd, 0) != 0)  // 1 refers to stdout
+          perror("dup2 fail");
+        // close the original fd
+        close(fd);
 
-    if(fd == -1) {
-      perror("Failed to open file");
     }
-    close(0);
-    // use dup2() to duplicate the fd
-    if(dup2(fd, 0) != 0)  // 1 refers to stdout
-      perror("dup2 fail");
-    // close the original fd
-    close(fd);
+    str = checkOutputRedirection(cmd);
+    if(str)
+    {
+        int fd;
+        // open the file to replace stdout
+        fd = open(str, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
-}
-str = checkOutputRedirection(cmd);
-if(str)
-{
-    int fd;
-    // open the file to replace stdout
-    fd = open(str, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
-    if(fd == -1) {
-      perror("Failed to open file");
+        if(fd == -1) {
+          perror("Failed to open file");
+        }
+        close(1);
+        // use dup2() to duplicate the fd
+        if(dup2(fd, 1) != 1)  // 1 refers to stdout
+          perror("dup2 fail");
+        // close the original fd
+        close(fd);
     }
-    close(1);
-    // use dup2() to duplicate the fd
-    if(dup2(fd, 1) != 1)  // 1 refers to stdout
-      perror("dup2 fail");
-    // close the original fd
-    close(fd);
-}
-str = checkAppendRedirection(cmd);
-if(str)
-{
-    int fd;
-    // open the file to replace stdout
-    fd = open(str, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    str = checkAppendRedirection(cmd);
+    if(str)
+    {
+        int fd;
+        // open the file to replace stdout
+        fd = open(str, O_WRONLY | O_CREAT | O_APPEND, 0644);
 
-    if(fd == -1) {
-      perror("Failed to open file");
+        if(fd == -1) {
+          perror("Failed to open file");
+        }
+        close(1);
+        // use dup2() to duplicate the fd
+        if(dup2(fd, 1) != 1)  // 1 refers to stdout
+          perror("dup2 fail");
+        // close the original fd
+        close(fd);
     }
-    close(1);
-    // use dup2() to duplicate the fd
-    if(dup2(fd, 1) != 1)  // 1 refers to stdout
-      perror("dup2 fail");
-    // close the original fd
-    close(fd);
-}
     int status = 0;
     int commandNumber = findCmdNo(cmd);
     if(commandNumber==-1)
@@ -348,6 +382,14 @@ if(str)
         case 7:
             //self implemented reminder
             status = exec_pk_remindme(cmd);
+            break;
+        case 8:
+            //self implemented setenv
+            status = exec_pk_setenv(cmd);
+            break;
+        case 9:
+            //self implemented unsetenv
+            status = exec_pk_unsetenv(cmd);
             break;
     }
     dup2(original_stdout,1);

@@ -26,7 +26,7 @@ int exec_reminder(char *cmd)
         printf("\nIts_PKS_Shell:\t REMINDER:");
         for(int i=2;i<argc;i++)
             printf("%s ",argv[i]);
-        printf("\n");
+        printf("\nPress enter to continue");
         _exit(1);
     }
     return 0;

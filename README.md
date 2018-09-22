@@ -61,12 +61,12 @@ remindme|Gives a reminder after time given|-|2
  * [lineParser.c](./lineParser.c) - Parse a line taken from user and seperate commands
  * [pinfo.c](./pinfo.c) - Functions to implement process information
  * [main.c](./main.c) - Master starts the process of shell
+ * [redirection.c](./redirection.c) - Has functions to implement I/O redirection
  * [exec_reminder.c](./exec_reminder.c) - Implementation of remindme
  * [custom_header.h](./custom_header.h) - Has functions declaration and prototypes
  * [makefile](./makefile) - Makes all files
  * [LICENSE](./LICENSE) - MIT License
  * [README.md](./README.md) - Readme aka about
-
 
 
 _______________
