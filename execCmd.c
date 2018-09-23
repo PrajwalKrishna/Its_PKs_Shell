@@ -1,13 +1,14 @@
 #include "custom_header.h"
 
-const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock","remindme","setenv","unsetenv"};
+const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock","remindme","setenv","unsetenv","jobs","kjob"};
 
-struct procInfo
+struct Process
 {
   int  pid;
   char cmd[1024];
+  int status; //status 1 shows running 0 shows stopped
 };
-struct procInfo backgroundProcess[1024];
+struct Process backgroundProcess[1024];
 int processPointer=0;
 
 int findCmdNo(char *cmd)
@@ -217,6 +218,60 @@ int exec_pk_unsetenv(char *cmd)
     }
     return 0;
 }
+int exec_pk_jobs(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    int check = 0;
+    if(argc!=1)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as jobs\n");
+        return -1;
+    }
+    int count=0;
+    for(int i=0;i<processPointer;i++)
+    {
+        if(backgroundProcess[i].pid)
+        {
+            count++;
+            if(backgroundProcess[i].status)
+                printf("\t[%d]\trunning\t%s\t[%d]\n",count,backgroundProcess[i].cmd,backgroundProcess[i].pid);
+            else
+                printf("\t[%d]\tstopped\t%s\t[%d]\n",count,backgroundProcess[i].cmd,backgroundProcess[i].pid);
+        }
+    }
+    return 0;
+}
+int exec_pk_kjob(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    int check = 0;
+    if(argc!=3)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as kjob <process index> <signal number>\n");
+        return -1;
+    }
+    int count=0,i;
+    int pid = atoi(argv[1]);
+    int sig = atoi(argv[2]);
+    for(i=0;i<processPointer;i++)
+    {
+        if(backgroundProcess[i].pid)
+            count++;
+        if(count==pid)
+        {
+            int check = kill(backgroundProcess[i].pid,sig);
+            return check;
+        }
+    }
+    if(i==processPointer)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Not valid process index use jobs for index\n");
+        return -1;
+    }
+    return 0;
+}
 int launch_cmd(char *cmd)
 {
     char **argv = argumentize(cmd);
@@ -224,6 +279,7 @@ int launch_cmd(char *cmd)
     pid_t pid,wpid;
     //background is defined when last argument is &
     int background = 0;
+    int status=0;
     if(!strcmp(argv[argc-1],"&"))
         background = 1;
     pid = fork();
@@ -249,7 +305,6 @@ int launch_cmd(char *cmd)
     else if(!background)
     {
         //parent Process for forground Process
-        int status;
         do{
             wpid = waitpid(pid,&status,WUNTRACED);
             if(wpid<0)
@@ -262,27 +317,28 @@ int launch_cmd(char *cmd)
     {
         //parent process for background Process
         backgroundProcess[processPointer].pid = pid;
+        backgroundProcess[processPointer].status = 1;
         strcpy(backgroundProcess[processPointer].cmd,argv[0]);
         processPointer++;
-        printf("%s [%d]\n",argv[0],pid);
+        printf("[+] %s [%d]\n",argv[0],pid);
     }
-    return 0;
+    return status;
 }
 int checkBackgroud()
 {
     int wpid,status;
-    do{
-        wpid = waitpid(-1,&status,WNOHANG);
-        if(wpid>0)
-            for(int i=0;i<processPointer;i++)
+    for(int i=0;i<processPointer;i++)
+    {
+        if(backgroundProcess[i].pid!=0)
+        {
+            wpid = waitpid(backgroundProcess[i].pid,&status,WNOHANG);
+            if(wpid==backgroundProcess[i].pid)
             {
-                if(backgroundProcess[i].pid == wpid)
-                {
-                    printf("Its_PKs_Shell: %s with pid %d exited with status %d\n",backgroundProcess[i].cmd,wpid,status);
-                    backgroundProcess[i].pid = 0;
-                }
+                printf("Its_PKs_Shell: %s with pid %d exited with status %d\n",backgroundProcess[i].cmd,wpid,WIFEXITED(status));
+                backgroundProcess[i].pid=0;
             }
-    }while(wpid>0);
+        }
+    }
     return 0;
 }
 int execCmd(char *cmd)
@@ -391,6 +447,15 @@ int execCmd(char *cmd)
             //self implemented unsetenv
             status = exec_pk_unsetenv(cmd);
             break;
+        case 10:
+            //self implemented jobs background job handler
+            status = exec_pk_jobs(cmd);
+            break;
+        case 11:
+            //self implemented unsetenv
+            status = exec_pk_kjob(cmd);
+            break;
+
     }
     //Restore the original I\O field
     dup2(original_stdout,1);

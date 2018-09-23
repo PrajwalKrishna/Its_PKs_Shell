@@ -11,6 +11,7 @@
 #include<stdio.h>
 #include<sys/utsname.h>
 #include<fcntl.h>
+#include<signal.h>
 
 //Functions in argumentize.c
 char ** argumentize(char * cmd);
@@ -63,8 +64,8 @@ char* checkInputRedirection(char *cmd);
 char* checkOutputRedirection(char *cmd);
 char* checkAppendRedirection(char *cmd);
 
-
-
-
 //functions in pipe.c
 int pipeExec(char *cmd);
+
+//functions in signal.c
+//void sigintHandler(int sig_num);
