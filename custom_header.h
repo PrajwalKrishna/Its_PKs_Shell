@@ -68,4 +68,10 @@ char* checkAppendRedirection(char *cmd);
 int pipeExec(char *cmd);
 
 //functions in signal.c
-//void sigintHandler(int sig_num);
+void CtrlCHandler(int sig_num);
+void CtrlZHandler(int sig_num);
+
+
+//some interfile variables
+pid_t CURR_FOREGROUND;
+char * CURR_FOREGROUND_NAME;

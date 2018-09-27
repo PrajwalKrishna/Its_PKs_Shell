@@ -1,6 +1,7 @@
 #include "custom_header.h"
 
-const char *SUPPORTED_CMD[]={"pwd","cd","echo","exit","ls","pinfo","clock","remindme","setenv","unsetenv","jobs","kjob"};
+const char *SUPPORTED_CMD[]={
+    "pwd","cd","echo","exit","ls","pinfo","clock","remindme","setenv","unsetenv","jobs","kjob","fg","bg","overkill","quit"};
 
 struct Process
 {
@@ -34,7 +35,6 @@ int findCmdNo(char *cmd)
      free(command);
      return -1;
 }
-
 int exec_pk_ls(char *cmd)
 {
     char **argv = argumentize(cmd);
@@ -218,6 +218,80 @@ int exec_pk_unsetenv(char *cmd)
     }
     return 0;
 }
+int exec_pk_fg(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    if(argc!=2)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as fg <process index from jobs>");
+        return -1;
+    }
+    int pindex = atoi(argv[1]);
+    int i,count=0;
+    for(i=0;i<processPointer;i++)
+    {
+        if(backgroundProcess[i].pid)
+            count++;
+        if(count==pindex)
+        {
+            int status;
+            pid_t wpid = waitpid(backgroundProcess[i].pid,&status,WUNTRACED|WCONTINUED);
+            int check = kill(backgroundProcess[i].pid,SIGCONT);
+            //Remove from background process array
+            if(!check)
+                backgroundProcess[i].pid=0;
+            return check;
+        }
+    }
+    if(i==processPointer)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Not valid process index use jobs for index\n");
+        return -1;
+    }
+    return 0;
+}
+int exec_pk_bg(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    if(argc!=2)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as bg <process index from jobs>");
+        return -1;
+    }
+    int pindex = atoi(argv[1]);
+    int i,count=0;
+    for(i=0;i<processPointer;i++)
+    {
+        if(backgroundProcess[i].pid)
+            count++;
+        if(count==pindex)
+        {
+            int check = kill(backgroundProcess[i].pid,SIGCONT);
+            return check;
+        }
+    }
+    if(i==processPointer)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Not valid process index use jobs for index\n");
+        return -1;
+    }
+    return 0;
+}
+int exec_pk_overkill()
+{
+    printf("Its_PKS_Shell:overkill will kill all background processes are you sure (y/n) ?");
+    char ch;
+    scanf("%c",&ch);
+    if(ch!='y' && ch!='Y')
+        return -1;
+    int i,count=0;
+    for(i=0;i<processPointer;i++)
+        if(backgroundProcess[i].pid)
+            kill(backgroundProcess[i].pid,9);
+    return 1;
+}
 int exec_pk_jobs(char *cmd)
 {
     char **argv = argumentize(cmd);
@@ -272,6 +346,26 @@ int exec_pk_kjob(char *cmd)
     }
     return 0;
 }
+//function to ensure that shell itself doesn't get killed by signal
+void CtrlCHandler(int sig_num)
+{
+    if(CURR_FOREGROUND==-1)
+        return;
+    kill(CURR_FOREGROUND,SIGINT);
+	fflush(stdout);
+}
+void CtrlZHandler(int sig_num)
+{
+    if(CURR_FOREGROUND==-1)
+        return;
+    kill(CURR_FOREGROUND,SIGTSTP);
+    backgroundProcess[processPointer].pid = CURR_FOREGROUND;
+    backgroundProcess[processPointer].status = 0;
+    strcpy(backgroundProcess[processPointer].cmd,CURR_FOREGROUND_NAME);
+    processPointer++;
+    printf("[+] %s [%d]\n",CURR_FOREGROUND_NAME,CURR_FOREGROUND);
+	fflush(stdout);
+}
 int launch_cmd(char *cmd)
 {
     char **argv = argumentize(cmd);
@@ -305,16 +399,19 @@ int launch_cmd(char *cmd)
     else if(!background)
     {
         //parent Process for forground Process
-        do{
+        //Set global foreground process pid
+        CURR_FOREGROUND = pid;
+        CURR_FOREGROUND_NAME = argv[0];
             wpid = waitpid(pid,&status,WUNTRACED);
             if(wpid<0)
             {
                 perror("It's PK's Shell");
             }
-        } while(!WIFEXITED(status) && !WIFSIGNALED(status));
+        //}while(!WIFEXITED(status) && !WIFSIGNALED(status));
     }
     else
     {
+        kill(pid,SIGCONT);
         //parent process for background Process
         backgroundProcess[processPointer].pid = pid;
         backgroundProcess[processPointer].status = 1;
@@ -455,12 +552,29 @@ int execCmd(char *cmd)
             //self implemented unsetenv
             status = exec_pk_kjob(cmd);
             break;
-
+        case 12:
+            //self implemented fg
+            status = exec_pk_fg(cmd);
+            break;
+        case 13:
+            //self implemented bg
+            status = exec_pk_bg(cmd);
+            break;
+        case 14:
+            //self implemented overkill
+            status = exec_pk_overkill();
+            break;
+        case 15:
+            //self implemented quit
+            status = exec_pk_overkill();
+            _exit(0);
+            break;
     }
     //Restore the original I\O field
     dup2(original_stdout,1);
     dup2(original_stdin,0);
     close(original_stdout);
     close(original_stdin);
+    checkBackgroud();
     return status;
 }

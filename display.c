@@ -22,13 +22,19 @@ void display()
 {
     struct utsname userInfo;
     uname(&userInfo);
+    checkBackgroud();
     const char *sys_name = userInfo.sysname;
     const char *user_name = getenv("USER");
-    checkBackgroud();
     printf("%s@%s:",user_name,sys_name);
     printf("%s",dirName());
     printf("%c",'>');
     char ** cmd;
+    CURR_FOREGROUND = -1;
+    CURR_FOREGROUND_NAME = NULL;
+    //Signal Handling see signal.h
+    signal(SIGINT,CtrlCHandler);
+    signal(SIGTSTP,CtrlZHandler);
+
     cmd = input();
     for(int i=0;cmd[i]!=NULL;i++)
     {

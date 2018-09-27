@@ -29,6 +29,9 @@ The shell also supports input and output redirection along with piping of comman
 - make ItsPKsshell
 - ./ItsPKsshell
 
+#### For quiting
+- quit for graceful exit
+- exit for immediate exit
 -----------
 ## Builts in Commands
 
@@ -44,6 +47,12 @@ clock|Starts foreground clock|-t,-n|1 or 2
 remindme|Gives a reminder after time given|-|2
 setenv|Can be used to set(i.e create or change) environment variable|-|1 or 2
 unsetenv|Can be used to unset(remove) an environment variable|-|1
+jobs|Shows  all background process with status and index|-|-
+kjob|Used to send kill signal to process listed in jobs|-|2
+fg|Used to bring a background process to foreground|-|1
+bg|Used to make stopped background process running|-|1
+overkill|Kills all the background processes|-|-
+quit|Graceful exits|-|-
 
 ## Features
 * Supports semi-colon separated commands
@@ -54,7 +63,7 @@ unsetenv|Can be used to unset(remove) an environment variable|-|1
 * Supports input and output file redirection
 * Supports piping of commands
 * Supports Ctrl + C and Ctrl + Z signals
-* Unique builtins like pinfo, clock, remindme ,kjobs
+* Unique builtins like pinfo, clock, remindme ,jobs, kjob, overkill ,quit
 
 ## File Structure
 
