@@ -53,6 +53,8 @@ fg|Used to bring a background process to foreground|-|1
 bg|Used to make stopped background process running|-|1
 overkill|Kills all the background processes|-|-
 quit|Graceful exits|-|-
+mkdir|Creates a new directory|-p|1 or 2
+mgdir|Creates a new directory and takes into it|-p|1 or 2
 
 ## Features
 * Supports semi-colon separated commands
@@ -63,7 +65,7 @@ quit|Graceful exits|-|-
 * Supports input and output file redirection
 * Supports piping of commands
 * Supports Ctrl + C and Ctrl + Z signals
-* Unique builtins like pinfo, clock, remindme ,jobs, kjob, overkill ,quit
+* Unique builtins like pinfo, clock, remindme ,jobs, kjob, overkill ,quit,mgdir
 
 ## File Structure
 

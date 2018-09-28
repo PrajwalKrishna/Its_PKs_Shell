@@ -1,7 +1,8 @@
 #include "custom_header.h"
 
 const char *SUPPORTED_CMD[]={
-    "pwd","cd","echo","exit","ls","pinfo","clock","remindme","setenv","unsetenv","jobs","kjob","fg","bg","overkill","quit"};
+    "pwd","cd","echo","exit","ls","pinfo","clock","remindme","setenv","unsetenv",
+    "jobs","kjob","fg","bg","overkill","quit","mkdir","mgdir"};
 
 struct Process
 {
@@ -101,6 +102,24 @@ int exec_pk_ls(char *cmd)
     }
     return 0;
 }
+int exec_pk_mkdir(char *cmd)
+{
+    char **argv = argumentize(cmd);
+    int argc = argCount(argv);
+    if((argc!=2 && argc!=4) || (argc==4 && strcmp(argv[1],"-p")))
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as mkdir <relativePath>  or mkdir -p <relativePath> <permissions>");
+        return -1;
+    }
+    int check =0;
+    if(argc==4)
+        check = mkdir(argv[2],atoi(argv[3]));
+    else
+        check = mkdir(argv[1],0700);
+    if(check<0)
+        perror("Its_PKS_Shell");
+    return check;
+}
 int exec_pk_pwd()
 {
     char *path = (char *)malloc(1000);
@@ -113,6 +132,11 @@ int exec_pk_cd(char *cmd)
 {
     char **argv = argumentize(cmd);
     int argc = argCount(argv);
+    if(argc!=2 && argc!=1)
+    {
+        fprintf(stderr,"%s\n","Its_PKS_Shell:Enter as cd <relativePath> or just cd");
+        return -1;
+    }
     if(argc==1 || !strcmp(argv[1],"~"))
     {
         int check = chdir(getenv("PWD"));
@@ -269,6 +293,7 @@ int exec_pk_bg(char *cmd)
         if(count==pindex)
         {
             int check = kill(backgroundProcess[i].pid,SIGCONT);
+            backgroundProcess[i].status = 1;
             return check;
         }
     }
@@ -568,6 +593,16 @@ int execCmd(char *cmd)
             //self implemented quit
             status = exec_pk_overkill();
             _exit(0);
+            break;
+        case 16:
+            //self implemented mkdir
+            status = exec_pk_mkdir(cmd);
+            break;
+        case 17:
+            //self implemented mkdir
+            status = exec_pk_mkdir(cmd);
+            if(!status)
+                status = exec_pk_cd(cmd);
             break;
     }
     //Restore the original I\O field
